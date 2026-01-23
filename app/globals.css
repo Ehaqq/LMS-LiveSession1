@@ -2,9 +2,9 @@
 
 :root {
   --dark: #111111;
-  --dark-alternate: #1B1918;
-  --primary: #FF5F3F;
-  --primary-light: #F4EBEB;
+  --dark-alternate: #1b1918;
+  --primary: #ff5f3f;
+  --primary-light: #f4ebeb;
 }
 
 @theme inline {
@@ -43,5 +43,5 @@ html {
 .input-group-admin input,
 .input-group-admin select,
 .input-group-admin textarea {
-  @apply px-4 py-2.5 w-full border border-gray-[#DBDBDB] rounded-md focus:border-gray-500 outline-none text-sm;
+  @apply px-4 py-3 w-full border border-[#DBDBDB] rounded-md focus:border-gray-500 outline-none text-sm;
 }
