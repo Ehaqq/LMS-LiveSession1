@@ -9,45 +9,6 @@ import { Product } from "@/app/types";
 import { getImageUrl } from "@/app/lib/api";
 import { useCartStore } from "@/app/hooks/use-cart-store";
 
-// const productList = [
-//   {
-//     name: "SportsOn Product 1",
-//     category: "Running",
-//     price: 450000,
-//     imgUrl: "product-1.png",
-//   },
-//   {
-//     name: "SportsOn Product 2",
-//     category: "Running",
-//     price: 250000,
-//     imgUrl: "product-1.png",
-//   },
-//   {
-//     name: "SportsOn Product 3",
-//     category: "Running",
-//     price: 230000,
-//     imgUrl: "product-3.png",
-//   },
-//   {
-//     name: "SportsOn Product 4",
-//     category: "Running",
-//     price: 440000,
-//     imgUrl: "product-4.png",
-//   },
-//   {
-//     name: "SportsOn Product 5",
-//     category: "Running",
-//     price: 550000,
-//     imgUrl: "product-5.png",
-//   },
-//   {
-//     name: "SportsOn Product 6",
-//     category: "Running",
-//     price: 650000,
-//     imgUrl: "product-6.png",
-//   },
-// ];
-
 type TProductsProps = {
   products: Product[];
 }
