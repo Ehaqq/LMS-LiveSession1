@@ -45,6 +45,8 @@ const TransactionManagement = () => {
     } catch (error) {
       console.error("Failed to update transaction status", error)
       toast.error("Failed to update transaction status");
+    } finally {
+      setIsModalOpen(false);
     }
   };
 
@@ -61,7 +63,7 @@ const TransactionManagement = () => {
         </div>
       </div>
       <TransactionTable transactions={transactions} onViewDetails={handleViewDetails}/>
-      <TransactionModal isOpen={isModalOpen} onClose={handleCloseModal} />
+      <TransactionModal transaction={selectedTransaction} onStatusChange={handleStatusChange} isOpen={isModalOpen} onClose={handleCloseModal} />
     </div>
   );
 };

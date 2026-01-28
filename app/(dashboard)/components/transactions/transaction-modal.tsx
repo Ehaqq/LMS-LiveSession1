@@ -5,72 +5,116 @@ import ImageUploadPreview from "../ui/image-upload-preview";
 import Image from "next/image";
 import PriceFormatter from "@/app/utils/price-formatter";
 import { FiCheck, FiX } from "react-icons/fi";
+import { Transaction } from "@/app/types";
+import { getImageUrl } from "@/app/lib/api";
 
 type TTransactionModalProps = {
   isOpen: boolean;
   onClose: () => void;
+  transaction: Transaction | null;
+  onStatusChange: (id: string, status: "paid" | "rejected") => Promise<void>;
 };
 
-const TransactionModal = ({ isOpen, onClose }: TTransactionModalProps) => {
+const TransactionModal = ({ isOpen, onClose, transaction, onStatusChange }: TTransactionModalProps) => {
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  if (!transaction) return;
+
+  const handleStatusUpdate = async (status: "paid" | "rejected") => {
+    setIsUpdating(true);
+    try {
+      await onStatusChange(transaction._id, status);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsUpdating(false);
+    }
+  }
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Verify Transactions">
       <div className="flex gap-6">
-        <div>
+        <div className="min-w-50">
           <h4 className="font-semibold text-sm mb-2">Payment Proof</h4>
-          <Image
-            src="/images/payment-proof-dummy.png"
-            alt="payment proof"
-            width={200}
-            height={401}
-          />
+          {transaction.paymentProof ? (
+            <Image
+              src={getImageUrl(transaction.paymentProof)}
+              alt="payment proof"
+              width={200}
+              height={401}
+            />
+          ) : (
+            <div className="text-center p-4">
+              <p className="text-sm">No payment proof uploaded</p>
+            </div>
+          )}
         </div>
-        <div>
+        <div className="w-full">
           <h4 className="font-semibold text-sm mb-2">Order Details</h4>
           <div className="bg-gray-100 rounded-md flex flex-col gap-2.5 p-4 text-sm mb-5">
             <div className="flex justify-between font-medium">
               <div className="opacity-50">Date</div>
-              <div className="text-right">23/02/2026 19.32</div>
+              <div className="text-right">
+                {new Date(transaction.createdAt).toLocaleDateString("id-ID", {
+                  day: "numeric",
+                  month: "short",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </div>
             </div>
             <div className="flex justify-between font-medium">
               <div className="opacity-50">Customer</div>
-              <div className="text-right">John Doe</div>
+              <div className="text-right">{transaction.customerName}</div>
             </div>
             <div className="flex justify-between font-medium">
               <div className="opacity-50">Contact</div>
-              <div className="text-right">+62812121212</div>
+              <div className="text-right">{transaction.customerContact}</div>
             </div>
             <div className="flex justify-between gap-10 font-medium">
               <div className="opacity-50 whitespace-nowrap">
                 Shipping Address
               </div>
-              <div className="text-right">
-                Merdeka Street, Jakarta Selatan, Indonesia, 112314
-              </div>
+              <div className="text-right">{transaction.customerAddress}</div>
             </div>
           </div>
           <h4 className="font-semibold text-sm mb-2">Items Purchased</h4>
-          <div className="border border-gray-200 rounded-lg p-2 flex items-center gap-2">
-            <div className="bg-gray-100 rounded aspect-square w-8 h-8">
-              <Image
-                src="/images/products/product-1.png"
-                alt="product image"
-                width={30}
-                height={30}
-              />
-            </div>
-            <div className="font-medium text-sm">SportsOn Hyper Shoes</div>
-            <div className="font-medium ml-auto text-sm">3 units</div>
+          <div className="space-y-3">
+            {transaction.purchasedItems.map((item, index) => (
+              <div className="border border-gray-200 rounded-lg p-2 flex items-center gap-2">
+                <div className="bg-gray-100 rounded aspect-square w-8 h-8">
+                  <Image
+                    src={getImageUrl(item.productId.imageUrl)}
+                    alt="product image"
+                    width={30}
+                    height={30}
+                  />
+                </div>
+                <div className="font-medium text-sm">{item.productId.name}</div>
+                <div className="font-medium ml-auto text-sm">
+                  {item.qty} units
+                </div>
+              </div>
+            ))}
           </div>
           <div className="flex justify-between text-sm mt-6">
             <h4 className="font-semibold">Total</h4>
             <div className="text-primary font-semibold">
-              {PriceFormatter(1000000)}
+              {PriceFormatter(parseInt(transaction.totalPayment))}
             </div>
           </div>
           <div className=" flex justify-end gap-5 mt-12">
-            <Button
+            {
+              isUpdating ? (
+                <div className="text-center">Updating...</div>
+              ) : (
+                <>
+                  <Button
               className="text-primary! bg-primary-light! rounded-md"
               size="small"
+              onClick={() => handleStatusUpdate("rejected")}
+              disabled={isUpdating}
             >
               <FiX size={20} />
               Reject
@@ -78,10 +122,15 @@ const TransactionModal = ({ isOpen, onClose }: TTransactionModalProps) => {
             <Button
               className="text-white! bg-[#50C252]! rounded-md"
               size="small"
+              onClick={() => handleStatusUpdate("paid")}
+              disabled={isUpdating}
             >
               <FiCheck size={20} />
               Approve
             </Button>
+                </>
+              )
+            }
           </div>
         </div>
       </div>
